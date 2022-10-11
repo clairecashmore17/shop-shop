@@ -6,6 +6,7 @@ import {
   UPDATE_CURRENT_CATEGORY,
 } from "../../utils/actions";
 import { userStoreContext, useStoreContext } from "../../utils/GlobalState";
+import { idbPromise } from "../../utils/helpers";
 
 function CategoryMenu() {
   //call upon useStoreContext to retrieve the current state from global state object and use dispatch to update state
@@ -15,18 +16,26 @@ function CategoryMenu() {
   const { categories } = state;
 
   // dont actually have any data in state, so we need to use categoryData that returns and use the dispatch method to set our global state
-  const { data: categoryData } = useQuery(QUERY_CATEGORIES);
+  const { loading, data: categoryData } = useQuery(QUERY_CATEGORIES);
 
   useEffect(() => {
-    //if categoryData exists or has changed from the response of useQuery, then run dispatch
     if (categoryData) {
-      // execute our dispath function with our action object indicating the type of action and the data to set our state for categories to
       dispatch({
         type: UPDATE_CATEGORIES,
         categories: categoryData.categories,
       });
+      categoryData.categories.forEach((category) => {
+        idbPromise("categories", "put", category);
+      });
+    } else if (!loading) {
+      idbPromise("categories", "get").then((categories) => {
+        dispatch({
+          type: UPDATE_CATEGORIES,
+          categories: categories,
+        });
+      });
     }
-  }, [categoryData, dispatch]);
+  }, [categoryData, loading, dispatch]);
 
   //update the click handler to update global state instead of using the function we recieve as a prop form the home component
   const handleClick = (id) => {
