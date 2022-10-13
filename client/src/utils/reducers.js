@@ -10,6 +10,8 @@ import {
   TOGGLE_CART,
 } from "./actions";
 import { useReducer } from "react";
+
+//reducer will be fed state and action and manipulate the state and return to you.
 export const reducer = (state, action) => {
   switch (action.type) {
     // if action type value is the value of `UPDATE_PRODUCTS`, return a new state object with updated products array
