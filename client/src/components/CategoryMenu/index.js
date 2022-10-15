@@ -1,21 +1,18 @@
-import React, { useEffect } from "react";
-import { useQuery } from "@apollo/client";
-import { QUERY_CATEGORIES } from "../../utils/queries";
+import React, { useEffect } from 'react';
+import { useQuery } from '@apollo/client';
+import { useStoreContext } from '../../utils/GlobalState';
 import {
   UPDATE_CATEGORIES,
   UPDATE_CURRENT_CATEGORY,
-} from "../../utils/actions";
-import { userStoreContext, useStoreContext } from "../../utils/GlobalState";
-import { idbPromise } from "../../utils/helpers";
+} from '../../utils/actions';
+import { QUERY_CATEGORIES } from '../../utils/queries';
+import { idbPromise } from '../../utils/helpers';
 
 function CategoryMenu() {
-  //call upon useStoreContext to retrieve the current state from global state object and use dispatch to update state
   const [state, dispatch] = useStoreContext();
 
-  //destructure categories out of the state returned by the storecontext
   const { categories } = state;
 
-  // dont actually have any data in state, so we need to use categoryData that returns and use the dispatch method to set our global state
   const { loading, data: categoryData } = useQuery(QUERY_CATEGORIES);
 
   useEffect(() => {
@@ -25,10 +22,10 @@ function CategoryMenu() {
         categories: categoryData.categories,
       });
       categoryData.categories.forEach((category) => {
-        idbPromise("categories", "put", category);
+        idbPromise('categories', 'put', category);
       });
     } else if (!loading) {
-      idbPromise("categories", "get").then((categories) => {
+      idbPromise('categories', 'get').then((categories) => {
         dispatch({
           type: UPDATE_CATEGORIES,
           categories: categories,
@@ -37,13 +34,13 @@ function CategoryMenu() {
     }
   }, [categoryData, loading, dispatch]);
 
-  //update the click handler to update global state instead of using the function we recieve as a prop form the home component
   const handleClick = (id) => {
     dispatch({
       type: UPDATE_CURRENT_CATEGORY,
       currentCategory: id,
     });
   };
+
   return (
     <div>
       <h2>Choose a Category:</h2>
